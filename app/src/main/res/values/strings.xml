@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Critical Thinking App For Kids</string>
+
+    <string name="login">Login</string>
+    <string name="signup">Sign Up</string>
+    <string name="forgot_password">Forgot Password</string>
+    <string name="remembered_password">"Back to Login "</string>
+    <string name="student_home">Student Home</string>
+    <string name="semester_screen">Semester Screen</string>
+    <string name="banker_home">Banker Home</string>
+    <string name="parent_home">Parent Home</string>
 </resources>

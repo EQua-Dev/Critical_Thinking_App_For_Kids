@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "190776316242",
+    "project_id": "critical-thinking-for-kids",
+    "storage_bucket": "critical-thinking-for-kids.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:190776316242:android:6d9e5b729d7714eb142a8b",
+        "android_client_info": {
+          "package_name": "com.awesomenessstudios.schoolprojects.criticalthinkingappforkids"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "190776316242-15n7alko9p8jbt0d0t6ob8q87eb0rj7l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.awesomenessstudios.schoolprojects.criticalthinkingappforkids",
+            "certificate_hash": "917db6a7f7fb3ea7081a5ecec1976ad186ab8128"
+          }
+        },
+        {
+          "client_id": "190776316242-pb1kg42m1qk6nme6odc4jpbp8u6vfu8g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7nqlFkMnp3k00EV9WirxAueCEIonYeWo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "190776316242-pb1kg42m1qk6nme6odc4jpbp8u6vfu8g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
