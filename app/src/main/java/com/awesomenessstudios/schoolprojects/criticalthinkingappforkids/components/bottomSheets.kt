@@ -36,14 +36,14 @@ fun AddChildBottomSheet(
     var gender by remember { mutableStateOf("Male") }
     var category by remember { mutableStateOf("") }
 
-    val categories = listOf("Early Childhood", "Primary", "Pre-Teen", "Teenager")
+    val childStages = listOf("Early Childhood", "Primary", "Pre-Teen", "Teenager")
 
-    fun determineCategory(age: Int): String {
+    fun determineChildStage(age: Int): String {
         return when (age) {
-            in 4..6 -> categories[0]
-            in 7..9 -> categories[1]
-            in 10..12 -> categories[2]
-            in 13..16 -> categories[3]
+            in 4..6 -> childStages[0]
+            in 7..9 -> childStages[1]
+            in 10..12 -> childStages[2]
+            in 13..16 -> childStages[3]
             else -> "Unknown"
         }
     }
@@ -82,13 +82,13 @@ fun AddChildBottomSheet(
                 Button(
                     onClick = {
                         val ageInt = age.toIntOrNull() ?: 0
-                        val category = determineCategory(ageInt)
+                        val category = determineChildStage(ageInt)
                         val child = Child(
                             childId = UUID.randomUUID().toString(),
                             childName = firstName,
                             childGender = gender,
                             childAge = age,
-                            childCategory = category,
+                            childStage = category,
                             childParent = mAuth.uid ?: "",
                             dateChildCreated = System.currentTimeMillis().toString()
                         )

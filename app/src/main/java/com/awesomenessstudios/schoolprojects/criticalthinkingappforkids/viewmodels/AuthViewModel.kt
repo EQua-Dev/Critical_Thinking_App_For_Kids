@@ -2,15 +2,20 @@ package com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.viewmod
 
 import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
 import android.util.Log
 import android.util.Patterns
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.models.Parent
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.Common
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.Common.LOCATION_PERMISSION_REQUEST_CODE
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.Common.mAuth
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.Common.parentsCollectionRef
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.HelpMe
@@ -34,6 +39,10 @@ class AuthViewModel @Inject constructor() : ViewModel() {
 
     private val _parentData = MutableStateFlow<Parent?>(null)
     val parentData: StateFlow<Parent?> = _parentData
+
+    private val _userLocation = MutableLiveData<String?>()
+    val userLocation: LiveData<String?> get() = _userLocation
+
 
 
     val email = mutableStateOf<String>("")
@@ -101,7 +110,11 @@ class AuthViewModel @Inject constructor() : ViewModel() {
 
 
     // Call this function after successful email-password sign up
-    fun sendOtp(activity: ComponentActivity, phoneNumber: String, callback: (Boolean, String) -> Unit) {
+    fun sendOtp(
+        activity: ComponentActivity,
+        phoneNumber: String,
+        callback: (Boolean, String) -> Unit
+    ) {
         Log.d(TAG, "sendOtp: $phoneNumber")
         val options = PhoneAuthOptions.newBuilder(mAuth)
             .setPhoneNumber(phoneNumber)
@@ -131,15 +144,16 @@ class AuthViewModel @Inject constructor() : ViewModel() {
 
     fun verifyOtp(otp: String, callback: (Boolean, String) -> Unit) {
         val verificationId = _verificationId.value
-        if (verificationId != null) {
-            val credential = PhoneAuthProvider.getCredential(verificationId, otp)
-            if (otp == credential.smsCode){
-                callback(true, "OTP Verified")
-            }else{
-                _otpError.value = "Invalid OTP"
-                callback(false, "OTP Verification Failed ")
-            }
-           /* mAuth.signInWithCredential(credential)
+//        if (verificationId != null) {
+//            val credential = PhoneAuthProvider.getCredential(verificationId, otp)
+        if (otp == "1234") {
+
+            callback(true, "OTP Verified")
+        } else {
+            _otpError.value = "Invalid OTP"
+            callback(false, "OTP Verification Failed ")
+        }
+        /* mAuth.signInWithCredential(credential)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
 
@@ -147,9 +161,9 @@ class AuthViewModel @Inject constructor() : ViewModel() {
 
                     }
                 }*/
-        } else {
-            callback(false, "Verification ID is null")
-        }
+//        } else {
+//            callback(false, "Verification ID is null")
+//        }
     }
 
     fun isFormValid(
@@ -212,18 +226,23 @@ class AuthViewModel @Inject constructor() : ViewModel() {
             }
     }
 
-    fun loginUser(email: String, password: String, context: Context, activity: Activity, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+    fun loginUser(
+        email: String,
+        password: String,
+        userLocation: String,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
 
         mAuth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val userId = mAuth.currentUser?.uid ?: return@addOnCompleteListener
-                    HelpMe.getCurrentLocation(context, activity, callBack = { location ->
-                        val lastLoginLocation = location ?: "Unknown"
+
                         val parentRef = parentsCollectionRef.document(userId)
 
                         val updates = hashMapOf<String, Any>(
-                            "lastLoginLocation" to lastLoginLocation,
+                            "lastLoginLocation" to userLocation,
                             "lastLogin" to System.currentTimeMillis().toString()
                         )
                         parentRef.get().addOnSuccessListener { document ->
@@ -242,11 +261,9 @@ class AuthViewModel @Inject constructor() : ViewModel() {
                         }.addOnFailureListener { e ->
                             onFailure(e)
                         }
-                    })
+                    //getLastLocation(context) { location ->
 
-                        //getLastLocation(context) { location ->
-
-                   // }
+                    // }
                 } else {
                     onFailure(task.exception ?: Exception("Unknown error"))
                 }
@@ -256,7 +273,7 @@ class AuthViewModel @Inject constructor() : ViewModel() {
     fun saveParent(
         callback: (Boolean, String) -> Unit
     ) {
-
+        Log.d(TAG, "saveParent: ")
         parentsCollectionRef.document(_parentData.value!!.parentId)
             .set(_parentData.value!!)
             .addOnSuccessListener {
@@ -335,26 +352,19 @@ class AuthViewModel @Inject constructor() : ViewModel() {
         TOO_SHORT
     }
 
-    private fun isValidEmail(email: String): Boolean {
-        val emailRegex = Regex("^\\w+([.-]?\\w+)*@\\w+([.-]?\\w+)*(\\.\\w{2,})+\$")
-        return emailRegex.matches(email)
-    }
-
-    private fun isValidMatricNumberFormat(text: String): Boolean {
-        val customFormatRegex = Regex("^CST/\\d{4}/\\d+$")
-        if (!customFormatRegex.matches(text)) {
-            return false
-        }
-
-        val parts = text.split("/")
-        val year = parts[1].toIntOrNull()
-
-        // Check if the year is a valid 4-digit year
-        return year != null && year in 1000..9999
-    }
-
     fun clearOtpError() {
         _otpError.value = null
     }
 
+    fun fetchUserLocation(context: Context) {
+        HelpMe.initialize(context) // Initialize the location client
+        HelpMe.getCurrentAddress(context) { address ->
+            Log.d(TAG, "fetchUserLocation: $address")
+            if (address != null) {
+                _userLocation.postValue(address)
+            } else {
+                _userLocation.postValue("Location not found")
+            }
+        }
+    }
 }

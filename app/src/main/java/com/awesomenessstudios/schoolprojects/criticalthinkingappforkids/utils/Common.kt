@@ -23,6 +23,7 @@ object Common {
     val fireStoreDB = Firebase.firestore.batch()
 
 
+    const val LOCATION_PERMISSION_REQUEST_CODE = 1001
 
 
     private const val PARENTS_REF = "MindSpark Parents"

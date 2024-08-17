@@ -1,5 +1,6 @@
 package com.awesomenessstudios.schoolprojects.criticalthinkingappforkids
 
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,10 +19,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.ui.theme.CriticalThinkingAppForKidsTheme
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.holder.HolderScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.providers.LocalNavHost
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.Common
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.Common.LOCATION_PERMISSION_REQUEST_CODE
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.LocalScreenSize
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.getScreenSize
 import dagger.hilt.android.AndroidEntryPoint

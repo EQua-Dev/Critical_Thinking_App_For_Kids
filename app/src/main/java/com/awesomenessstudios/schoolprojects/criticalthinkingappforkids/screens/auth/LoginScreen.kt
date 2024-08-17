@@ -2,6 +2,8 @@ package com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens
 
 import CustomTextField
 import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,7 +19,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,6 +46,7 @@ fun LoginScreen(
     authViewModel: AuthViewModel = hiltViewModel()
 ) {
 
+
     val context = LocalContext.current
     val activity = LocalContext.current as Activity
     val email by remember { authViewModel.email }
@@ -51,7 +56,21 @@ fun LoginScreen(
     val showLoading by remember { mutableStateOf(authViewModel.showLoading) }
     var showSnackbar by remember { mutableStateOf(false) }
 
+    val userLocation by authViewModel.userLocation.observeAsState()
 
+    val locationPermissionRequest = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            authViewModel.fetchUserLocation(context)
+        } else {
+            // Handle permission denial
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        locationPermissionRequest.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+    }
     Box(modifier = Modifier.padding(12.dp), contentAlignment = Alignment.Center) {
 
 
@@ -93,7 +112,7 @@ fun LoginScreen(
                 text = stringResource(id = R.string.login),
                 onClick = {
                     authViewModel.updateLoadingStatus(true)
-                    authViewModel.loginUser(email, password, context = context, activity = activity,
+                    authViewModel.loginUser(email, password, userLocation!!,
                         onSuccess = {
                             authViewModel.updateLoadingStatus(false)
                             onNavigationRequested(Screen.ParentHome.route, true)

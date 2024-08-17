@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Critical Thinking App For Kids</string>
+    <string name="app_name">Mind Spark</string>
 
     <string name="login">Login</string>
     <string name="signup">Sign Up</string>
@@ -9,4 +9,7 @@
     <string name="semester_screen">Semester Screen</string>
     <string name="banker_home">Banker Home</string>
     <string name="parent_home">Parent Home</string>
+    <string name="child_home">Child Home</string>
+    <string name="category_overview">Category Overview</string>
+    <string name="activity_type_overview">Activity Type Overview</string>
 </resources>

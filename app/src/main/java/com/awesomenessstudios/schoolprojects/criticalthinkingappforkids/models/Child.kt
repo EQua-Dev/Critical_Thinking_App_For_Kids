@@ -5,7 +5,7 @@ data class Child(
     val childName: String = "",
     val childGender: String = "",
     val childAge: String = "",
-    val childCategory: String = "",
+    val childStage: String = "",
     val childParent: String = "",
     val dateChildCreated: String = ""
 )

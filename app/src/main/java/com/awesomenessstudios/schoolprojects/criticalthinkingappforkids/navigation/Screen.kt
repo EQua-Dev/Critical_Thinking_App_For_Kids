@@ -29,4 +29,16 @@ sealed class Screen(
         route = "parenthome",
         title = R.string.parent_home,
     )
+    object ChildHome : Screen(
+        route = "childhome/{childId}",
+        title = R.string.child_home,
+    )
+    object CategoryOverview : Screen(
+        route = "categoryoverview/{childId}/{category}/{childStage}",
+        title = R.string.category_overview,
+    )
+    object ActivityTypeOverview: Screen(
+        route = "activitytypeoverview/{activityTypeKey}/{childId}/{category}/{childStage}",
+        title = R.string.activity_type_overview,
+    )
 }

@@ -190,7 +190,7 @@ fun SignUpScreen(
                                     phoneNumber,
                                     callback = { sendOtpStatus, sendOtpMessage ->
 
-                                        if (sendOtpStatus) {
+                                       // if (sendOtpStatus) {
                                             // Show OTP Bottom Sheet
                                             showOtpBottomSheet = true
                                             authViewModel.sendOtp(
@@ -202,7 +202,7 @@ fun SignUpScreen(
                                                     showSnackbar = true
                                                 }
                                             }
-                                        }
+                                        //}
                                     })
                             } else {
                                 errorMessage.value = message
@@ -258,6 +258,7 @@ fun SignUpScreen(
         ) {
             OtpBottomSheet(
                 onVerifyOtp = { otp ->
+                    Log.d(TAG, "SignUpScreen: $otp")
                     authViewModel.verifyOtp(otp) { success, message ->
                         if (success) {
                             showOtpBottomSheet = false

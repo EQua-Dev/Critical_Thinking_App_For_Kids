@@ -1,5 +1,6 @@
 package com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.holder
 
+import android.util.Log
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateDp
@@ -22,14 +23,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.navArgument
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.navigation.Screen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.providers.LocalNavHost
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.auth.ForgotPasswordScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.auth.LoginScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.auth.SignUpScreen
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.child.ActivityTypeOverviewScreen
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.child.CategoryOverviewScreen
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.child.ChildHomeScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.parent.ParentHomeScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.Common.mAuth
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.getDp
@@ -40,6 +46,8 @@ fun HolderScreen(
     onStatusBarColorChange: (color: Color) -> Unit,
     holderViewModel: HolderViewModel = hiltViewModel(),
 ) {
+
+    val TAG = "HolderScreen"
     /*  val destinations = remember {
           listOf(Screen.Home, Screen.Notifications, Screen.Bookmark, Screen.Profile)
       }*/
@@ -129,20 +137,26 @@ fun HolderScreen(
                     }
                 }*/
             },
-            onCourseRegistered = {
-                //nav to set course goals
-                //controller.navigate(Screen.SetCourseGoal.route)
+            onCategorySelected = { childId, childStage, category ->
+                controller.navigate(
+                    Screen.CategoryOverview.route.replace("{childId}", childId)
+                        .replace("{childStage}", childStage).replace("{category}", category)
+                )
+            },
+            onActivityTypeSelected = { activityTypeKey, childId, category, childStage ->
+                Log.d(TAG, "HolderScreen: $category")
+                controller.navigate(
+                    Screen.ActivityTypeOverview.route.replace("{activityTypeKey}",activityTypeKey).replace("{childId}", childId)
+                        .replace("{childStage}", childStage).replace("{category}", category)
+                )
             },
             onGoalsSet = {
                 //nav to student home
                 //controller.navigate(Screen.StudentLanding.route)
             },
-            onSemesterSelected = { level, semester ->
-                /*controller.navigate(
-                    Screen.SemesterScreen.route.replace("{level}", level)
-                        .replace("{semester}", semester)
-                )
-*/
+            onChildSelected = { childId ->
+                controller.navigate(Screen.ChildHome.route.replace("{childId}", childId))
+
             },
             onViewStudent = { studentId ->
                 //controller.navigate(Screen.StudentDetail.route.replace("{studentId}", studentId))
@@ -152,11 +166,6 @@ fun HolderScreen(
             },
             onLogoutRequested = {
                 mAuth.signOut()
-                /*controller.navigate(Screen.Login.route) {
-                    popUpTo(Screen.Signup.route) {
-                        inclusive = true
-                    }
-                }*/
             }
         )
     }
@@ -172,9 +181,10 @@ fun ScaffoldSection(
     onBackRequested: () -> Unit,
     onAuthenticated: (userType: String) -> Unit,
     onAccountCreated: () -> Unit,
-    onCourseRegistered: () -> Unit,
+    onCategorySelected: (childId: String, childStage: String, category: String) -> Unit,
+    onActivityTypeSelected: (activityTypeKey: String, childId: String,  category: String, childStage: String,) -> Unit,
     onGoalsSet: () -> Unit,
-    onSemesterSelected: (level: String, semester: String) -> Unit,
+    onChildSelected: (childId: String) -> Unit,
     onViewStudent: (studentId: String) -> Unit,
     onNewScreenRequest: (route: String, id: String?) -> Unit,
     onLogoutRequested: () -> Unit
@@ -207,11 +217,11 @@ fun ScaffoldSection(
                         onAccountCreated = onAccountCreated,
                     )
                 }
-                    composable(Screen.Login.route) {
-                        onStatusBarColorChange(MaterialTheme.colorScheme.background)
-                        LoginScreen(
-                            onNavigationRequested = onNavigationRequested,
-                            onAuthenticated = onAuthenticated
+                composable(Screen.Login.route) {
+                    onStatusBarColorChange(MaterialTheme.colorScheme.background)
+                    LoginScreen(
+                        onNavigationRequested = onNavigationRequested,
+                        onAuthenticated = onAuthenticated
                     )
                 }
                 composable(Screen.ForgotPassword.route) {
@@ -220,11 +230,80 @@ fun ScaffoldSection(
                         onNavigationRequested = onNavigationRequested
                     )
                 }
-                composable(Screen.ParentHome.route){
+                composable(Screen.ParentHome.route) {
                     onStatusBarColorChange(MaterialTheme.colorScheme.background)
-                    ParentHomeScreen(                        onNavigationRequested = onNavigationRequested
+                    ParentHomeScreen(
+                        onNavigationRequested = onNavigationRequested,
+                        onChildSelected = onChildSelected
                     )
                 }
+                composable(
+                    Screen.ChildHome.route,
+                    arguments = listOf(
+                        navArgument(name = "childId") { type = NavType.StringType }
+                    ),
+                ) {
+                    onStatusBarColorChange(MaterialTheme.colorScheme.background)
+                    val childId = it.arguments?.getString("childId")
+
+                    ChildHomeScreen(
+                        childId = childId!!,
+                        navController = controller,
+                        onNavigationRequested = onNavigationRequested,
+                        onCategorySelected = onCategorySelected
+                    )
+                }
+                composable(
+                    Screen.CategoryOverview.route,
+                    arguments = listOf(
+                        navArgument(name = "childId") { type = NavType.StringType },
+                        navArgument(name = "childStage") { type = NavType.StringType },
+                        navArgument(name = "category") { type = NavType.StringType },
+                    ),
+                ) {
+                    onStatusBarColorChange(MaterialTheme.colorScheme.background)
+                    val childId = it.arguments?.getString("childId")
+                    val category = it.arguments?.getString("category")
+                    val childStage = it.arguments?.getString("childStage")
+
+                    CategoryOverviewScreen(
+                        childId = childId!!,
+                        categoryKey = category!!,
+                        childStage = childStage!!,
+                        navController = controller,
+                        onActivityTypeSelected = onActivityTypeSelected
+
+                    )
+                }
+                composable(
+                    Screen.ActivityTypeOverview.route,
+                    arguments = listOf(
+                        navArgument(name = "childId") { type = NavType.StringType },
+                        navArgument(name = "childStage") { type = NavType.StringType },
+                        navArgument(name = "category") { type = NavType.StringType },
+                        navArgument(name = "activityTypeKey") { type = NavType.StringType },
+                    ),
+                ) {
+                    onStatusBarColorChange(MaterialTheme.colorScheme.background)
+                    val childId = it.arguments?.getString("childId")
+                    val category = it.arguments?.getString("category")
+                    val childStage = it.arguments?.getString("childStage")
+                    val activityTypeKey = it.arguments?.getString("activityTypeKey")
+
+                    Log.d("TAG", "ScaffoldSection: $category!!")
+
+                    ActivityTypeOverviewScreen(
+                        activityKey = activityTypeKey!!,
+                        childStage = childStage!!,
+                        categoryKey = category!!,
+                        childId = childId!!,
+                        navController = controller,
+
+                    )
+
+                }
+
+                //{activityTypeKey}/{childId}/{category}/{childStage}
 
             }
         }

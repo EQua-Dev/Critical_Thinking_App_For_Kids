@@ -43,6 +43,7 @@ import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.viewmode
 @Composable
 fun ParentHomeScreen(
     modifier: Modifier = Modifier,
+    onChildSelected: (String) -> Unit,
     onNavigationRequested: (String, Boolean) -> Unit,
     parentViewModel: ParentViewModel = hiltViewModel()
 ) {
@@ -112,7 +113,9 @@ fun ParentHomeScreen(
                 } else {
                     LazyColumn {
                         items(children) { child ->
-                            ChildItem(child)
+                            ChildItem(child){ childId ->
+                                onChildSelected(childId)
+                            }
                         }
                     }
                 }
