@@ -1,5 +1,6 @@
 package com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.child
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,7 +46,12 @@ fun ActivityTypeRuleScreen(
         categoryKey: String,
         childStage: String,
         difficultyLevel: String
-    ) -> Unit, navController: NavController,
+    ) -> Unit,
+    onGameStart: (childId: String,
+                  category: String,
+                  difficultyLevel: String,
+                  childStage: String) -> Unit,
+    navController: NavController,
     activityTypeViewModel: ActivityTypeViewModel = hiltViewModel()
 ) {
 
@@ -146,8 +152,21 @@ fun ActivityTypeRuleScreen(
         }
 
         Button(onClick = {
-            if (activityTypeKey == "quiz") {
-                onQuizStart(childId, categoryKey, childStage, selectedDifficulty)
+            /*
+            childId
+category
+difficultyLevel
+childStage
+            * */
+            when (activityTypeKey) {
+                "quiz" -> {
+                    onQuizStart(childId, categoryKey, childStage, selectedDifficulty)
+                }
+                "game" -> {
+
+                    onGameStart(childId, categoryKey, selectedDifficulty, childStage)
+                }
+
             }
         }) {
             Text(text = "Start")

@@ -38,6 +38,7 @@ import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.child.ActivityTypeRuleScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.child.CategoryOverviewScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.child.ChildHomeScreen
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.games.GameScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.parent.ParentHomeScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.Common.mAuth
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.getDp
@@ -179,6 +180,17 @@ fun HolderScreen(
             onQuizCompleted = { score ->
 
             },
+            onGameStart = { childId,
+                            category,
+                            difficultyLevel,
+                            childStage ->
+                controller.navigate(
+                    Screen.Game.route.replace("{childId}", childId)
+                        .replace("{categoryKey}", category)
+                        .replace("{difficultyLevel}", difficultyLevel)
+                        .replace("{childStage}", childStage)
+                )
+            },
             onNewScreenRequest = { route, patientId ->
                 controller.navigate(route.replace("{patientId}", "$patientId"))
             },
@@ -210,6 +222,7 @@ fun ScaffoldSection(
         difficultyLevel: String
     ) -> Unit,
     onQuizCompleted: (score: Int) -> Unit,
+    onGameStart: (childId: String, category: String, difficultyLevel: String, childStage: String) -> Unit,
     onNewScreenRequest: (route: String, id: String?) -> Unit,
     onLogoutRequested: () -> Unit
 ) {
@@ -348,6 +361,7 @@ fun ScaffoldSection(
                         childId = childId!!,
                         selectedDifficulty = selectedDifficulty!!,
                         onQuizStart = onQuizStart,
+                        onGameStart = onGameStart,
                         navController = controller,
                     )
 
@@ -373,6 +387,31 @@ fun ScaffoldSection(
                         childId = childId!!,
                         difficultyLevel = selectedDifficulty!!,
                         onQuizCompleted = onQuizCompleted
+
+                    )
+
+                }
+                composable(
+                    Screen.Game.route,
+                    arguments = listOf(
+                        navArgument(name = "childId") { type = NavType.StringType },
+                        navArgument(name = "categoryKey") { type = NavType.StringType },
+                        navArgument(name = "difficultyLevel") { type = NavType.StringType },
+                        navArgument(name = "childStage") { type = NavType.StringType },
+                    ),
+                ) {
+                    onStatusBarColorChange(MaterialTheme.colorScheme.background)
+                    val childId = it.arguments?.getString("childId")
+                    val categoryKey = it.arguments?.getString("categoryKey")
+                    val selectedDifficulty = it.arguments?.getString("difficultyLevel")
+                    val childStage = it.arguments?.getString("childStage")
+
+                    GameScreen(
+                        childStage = childStage!!,
+                        category = categoryKey!!,
+                        childId = childId!!,
+                        difficultyLevel = selectedDifficulty!!,
+                        //onQuizCompleted = onQuizCompleted
 
                     )
 

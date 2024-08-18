@@ -36,7 +36,7 @@ fun AddChildBottomSheet(
     var gender by remember { mutableStateOf("Male") }
     var category by remember { mutableStateOf("") }
 
-    val childStages = listOf("Early Childhood", "Primary", "Pre-Teen", "Teenager")
+    val childStages = listOf("Early Childhood", "Primary", "Pre Teen", "Teenager")
 
     fun determineChildStage(age: Int): String {
         return when (age) {

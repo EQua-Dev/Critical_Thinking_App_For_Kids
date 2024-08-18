@@ -49,6 +49,10 @@ sealed class Screen(
         route = "quiz/{childId}/{categoryKey}/{childStage}/{difficultyLevel}",
         title = R.string.quiz,
     )
+    object Game: Screen(
+        route = "game/{childId}/{categoryKey}/{difficultyLevel}/{childStage}",
+        title = R.string.game,
+    )
 }
 
 
