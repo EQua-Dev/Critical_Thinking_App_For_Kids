@@ -153,4 +153,11 @@ object HelpMe {
       }
 
   */
+
+    fun convertToSnakeCase(stage: String): String {
+        return stage
+            .replace(" ", "_")  // Replace spaces with underscores
+            .lowercase()        // Convert the entire string to lowercase
+    }
+
 }

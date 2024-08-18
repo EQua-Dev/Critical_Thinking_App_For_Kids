@@ -41,4 +41,16 @@ sealed class Screen(
         route = "activitytypeoverview/{activityTypeKey}/{childId}/{category}/{childStage}",
         title = R.string.activity_type_overview,
     )
+    object ActivityTypeRule: Screen(
+        route = "activitytyperule/{childId}/{categoryKey}/{childStage}/{activityTypeKey}/{selectedDifficulty}",
+        title = R.string.activity_type_rule,
+    )
+    object Quiz: Screen(
+        route = "quiz/{childId}/{categoryKey}/{childStage}/{difficultyLevel}",
+        title = R.string.quiz,
+    )
 }
+
+
+
+

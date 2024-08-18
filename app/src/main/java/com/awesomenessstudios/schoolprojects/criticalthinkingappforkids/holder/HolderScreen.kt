@@ -30,10 +30,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.navigation.Screen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.providers.LocalNavHost
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.QuizScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.auth.ForgotPasswordScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.auth.LoginScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.auth.SignUpScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.child.ActivityTypeOverviewScreen
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.child.ActivityTypeRuleScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.child.CategoryOverviewScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.child.ChildHomeScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.parent.ParentHomeScreen
@@ -146,20 +148,36 @@ fun HolderScreen(
             onActivityTypeSelected = { activityTypeKey, childId, category, childStage ->
                 Log.d(TAG, "HolderScreen: $category")
                 controller.navigate(
-                    Screen.ActivityTypeOverview.route.replace("{activityTypeKey}",activityTypeKey).replace("{childId}", childId)
+                    Screen.ActivityTypeOverview.route.replace("{activityTypeKey}", activityTypeKey)
+                        .replace("{childId}", childId)
                         .replace("{childStage}", childStage).replace("{category}", category)
                 )
             },
-            onGoalsSet = {
-                //nav to student home
-                //controller.navigate(Screen.StudentLanding.route)
+            onActivityRuleSelected = { childId, categoryKey, childStage, activityTypeKey, selectedDifficulty ->
+                controller.navigate(
+                    Screen.ActivityTypeRule.route.replace("{childId}", childId)
+                        .replace("{categoryKey}", categoryKey).replace("{childStage}", childStage)
+                        .replace("{activityTypeKey}", activityTypeKey)
+                        .replace("{selectedDifficulty}", selectedDifficulty)
+                )
             },
             onChildSelected = { childId ->
                 controller.navigate(Screen.ChildHome.route.replace("{childId}", childId))
 
             },
-            onViewStudent = { studentId ->
-                //controller.navigate(Screen.StudentDetail.route.replace("{studentId}", studentId))
+            onQuizStart = { childId,
+                            categoryKey,
+                            childStage,
+                            difficultyLevel ->
+                controller.navigate(
+                    Screen.Quiz.route.replace("{childId}", childId)
+                        .replace("{categoryKey}", categoryKey)
+                        .replace("{childStage}", childStage)
+                        .replace("{difficultyLevel}", difficultyLevel)
+                )
+            },
+            onQuizCompleted = { score ->
+
             },
             onNewScreenRequest = { route, patientId ->
                 controller.navigate(route.replace("{patientId}", "$patientId"))
@@ -182,10 +200,16 @@ fun ScaffoldSection(
     onAuthenticated: (userType: String) -> Unit,
     onAccountCreated: () -> Unit,
     onCategorySelected: (childId: String, childStage: String, category: String) -> Unit,
-    onActivityTypeSelected: (activityTypeKey: String, childId: String,  category: String, childStage: String,) -> Unit,
-    onGoalsSet: () -> Unit,
+    onActivityTypeSelected: (activityTypeKey: String, childId: String, category: String, childStage: String) -> Unit,
+    onActivityRuleSelected: (childId: String, categoryKey: String, childStage: String, activityTypeKey: String, selectedDifficulty: String) -> Unit,
     onChildSelected: (childId: String) -> Unit,
-    onViewStudent: (studentId: String) -> Unit,
+    onQuizStart: (
+        childId: String,
+        categoryKey: String,
+        childStage: String,
+        difficultyLevel: String
+    ) -> Unit,
+    onQuizCompleted: (score: Int) -> Unit,
     onNewScreenRequest: (route: String, id: String?) -> Unit,
     onLogoutRequested: () -> Unit
 ) {
@@ -290,14 +314,65 @@ fun ScaffoldSection(
                     val childStage = it.arguments?.getString("childStage")
                     val activityTypeKey = it.arguments?.getString("activityTypeKey")
 
-                    Log.d("TAG", "ScaffoldSection: $category!!")
-
                     ActivityTypeOverviewScreen(
                         activityKey = activityTypeKey!!,
                         childStage = childStage!!,
                         categoryKey = category!!,
                         childId = childId!!,
                         navController = controller,
+                        onActivityRuleSelected = onActivityRuleSelected,
+                    )
+
+                }
+                composable(
+                    Screen.ActivityTypeRule.route,
+                    arguments = listOf(
+                        navArgument(name = "childId") { type = NavType.StringType },
+                        navArgument(name = "categoryKey") { type = NavType.StringType },
+                        navArgument(name = "childStage") { type = NavType.StringType },
+                        navArgument(name = "activityTypeKey") { type = NavType.StringType },
+                        navArgument(name = "selectedDifficulty") { type = NavType.StringType },
+                    ),
+                ) {
+                    onStatusBarColorChange(MaterialTheme.colorScheme.background)
+                    val childId = it.arguments?.getString("childId")
+                    val categoryKey = it.arguments?.getString("categoryKey")
+                    val childStage = it.arguments?.getString("childStage")
+                    val activityTypeKey = it.arguments?.getString("activityTypeKey")
+                    val selectedDifficulty = it.arguments?.getString("selectedDifficulty")
+
+                    ActivityTypeRuleScreen(
+                        activityTypeKey = activityTypeKey!!,
+                        childStage = childStage!!,
+                        categoryKey = categoryKey!!,
+                        childId = childId!!,
+                        selectedDifficulty = selectedDifficulty!!,
+                        onQuizStart = onQuizStart,
+                        navController = controller,
+                    )
+
+                }
+                composable(
+                    Screen.Quiz.route,
+                    arguments = listOf(
+                        navArgument(name = "childId") { type = NavType.StringType },
+                        navArgument(name = "categoryKey") { type = NavType.StringType },
+                        navArgument(name = "childStage") { type = NavType.StringType },
+                        navArgument(name = "difficultyLevel") { type = NavType.StringType },
+                    ),
+                ) {
+                    onStatusBarColorChange(MaterialTheme.colorScheme.background)
+                    val childId = it.arguments?.getString("childId")
+                    val categoryKey = it.arguments?.getString("categoryKey")
+                    val childStage = it.arguments?.getString("childStage")
+                    val selectedDifficulty = it.arguments?.getString("difficultyLevel")
+
+                    QuizScreen(
+                        childStage = childStage!!,
+                        categoryKey = categoryKey!!,
+                        childId = childId!!,
+                        difficultyLevel = selectedDifficulty!!,
+                        onQuizCompleted = onQuizCompleted
 
                     )
 

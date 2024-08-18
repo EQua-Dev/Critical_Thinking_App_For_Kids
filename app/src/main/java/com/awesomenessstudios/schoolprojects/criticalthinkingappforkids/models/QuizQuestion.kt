@@ -1,6 +1,6 @@
 package com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.models
 
-data class Quiz(
+data class QuizQuestion(
     val question: String = "",
     val answer: String = "",
     val options: List<String> = listOf(),

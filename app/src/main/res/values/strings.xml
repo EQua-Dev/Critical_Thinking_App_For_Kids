@@ -12,4 +12,6 @@
     <string name="child_home">Child Home</string>
     <string name="category_overview">Category Overview</string>
     <string name="activity_type_overview">Activity Type Overview</string>
+    <string name="activity_type_rule">Activity Rule</string>
+    <string name="quiz">Quiz</string>
 </resources>
