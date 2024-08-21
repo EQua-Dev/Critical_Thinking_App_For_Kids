@@ -1,11 +1,13 @@
 [versions]
 agp = "8.5.1"
+core = "11.0.1"
 datastorePreferences = "1.1.1"
 dexter = "5.0.0"
 firebaseBom = "33.1.2"
 firebaseCoreVersion = "21.1.1"
 firebaseFirestoreKtx = "25.0.0"
 firebaseUiFirestore = "8.0.0"
+foundation = "1.4.3"
 googleServices = "4.4.2"
 gradle = "8.0.2"
 hiltAndroid = "2.48"
@@ -41,6 +43,7 @@ playServicesLocation = "21.3.0"
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+androidx-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "foundation" }
 androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltCompilerVersion" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltCompilerVersion" }
 androidx-lifecycle-extensions = { module = "androidx.lifecycle:lifecycle-extensions", version.ref = "lifecycleExtensions" }
@@ -53,6 +56,7 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationSafeArgsGradlePlugin" }
 androidx-navigation-safe-args-gradle-plugin = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "navigationSafeArgsGradlePlugin" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationSafeArgsGradlePlugin" }
+core = { module = "com.pierfrancescosoffritti.androidyoutubeplayer:core", version.ref = "core" }
 dexter = { module = "com.karumi:dexter", version.ref = "dexter" }
 firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx" }
 firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx" }

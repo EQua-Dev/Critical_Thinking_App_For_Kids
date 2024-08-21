@@ -69,7 +69,7 @@ fun SignUpScreen(
     val passwordStrength by remember { authViewModel.passwordStrength }
     val selectedGender by remember { authViewModel.gender }
 
-    val genders = listOf("Male", "Female")
+    val genders = listOf("Male", "Female", "Custom")
 
 
     val showLoading = remember { authViewModel.showLoading }

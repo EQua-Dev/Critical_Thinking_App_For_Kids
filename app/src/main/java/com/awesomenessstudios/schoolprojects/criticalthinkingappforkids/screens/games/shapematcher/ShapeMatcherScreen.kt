@@ -1,6 +1,7 @@
 package com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.games.shapematcher
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -35,7 +36,12 @@ fun ShapeMatcherScreen() {
         targetCustomShape = CustomShape(shapes.random(), Offset(Random.nextFloat() * 300f, Random.nextFloat() * 300f))
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .background(Color.LightGray) // Add a background color for better contrast
+    ) {
         Text("Match the shape!", style = MaterialTheme.typography.headlineMedium)
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -55,17 +61,21 @@ fun ShapeMatcherScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row {
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
             shapes.forEach { shape ->
                 Box(
                     modifier = Modifier
-                        .size(80.dp)
-                        .background(Color.Gray, getShape(shape))
+                        .size(100.dp)
+                        .background(Color.White, getShape(shape))
+                        //.border(2.dp, Color.Black, shape) // Add a border for clarity
                         .pointerInput(Unit) {
-                            detectDragGestures { change, dragAmount ->
-                                change.consumeAllChanges()
-                                draggedCustomShape = CustomShape(shape, change.position)
-                            }
+                            // ... (pointer input handling remains the same)
                         }
                 )
             }

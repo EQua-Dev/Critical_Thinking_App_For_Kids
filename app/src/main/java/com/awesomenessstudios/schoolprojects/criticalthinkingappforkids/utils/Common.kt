@@ -10,13 +10,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
-/*
-import org.devstrike.persacg.models.Course
-import org.devstrike.persacg.models.Lecturer
-import org.devstrike.persacg.models.RegisteredCourse
-import org.devstrike.persacg.models.Student
-*/
-
 object Common {
 
     val mAuth = FirebaseAuth.getInstance()
@@ -29,11 +22,13 @@ object Common {
     private const val PARENTS_REF = "MindSpark Parents"
     private const val CHILDREN_REF = "MindSpark Children"
     private const val QUIZ_REF = "MindSpark Quizzes"
+    private const val VIDEOS_REF = "MindSpark Videos"
 
 
     val parentsCollectionRef = Firebase.firestore.collection(PARENTS_REF)
     val childrenCollectionRef = Firebase.firestore.collection(CHILDREN_REF)
     val quizCollectionRef = Firebase.firestore.collection(QUIZ_REF)
+    val videoCollectionRef = Firebase.firestore.collection(VIDEOS_REF)
 
 
     fun logout() {

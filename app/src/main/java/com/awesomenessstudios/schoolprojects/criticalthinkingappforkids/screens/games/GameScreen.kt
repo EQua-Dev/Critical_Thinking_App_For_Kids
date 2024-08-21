@@ -3,6 +3,7 @@ package com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens
 import android.util.Log
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.games.draganddrop.DragAndDropScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.games.patternpuzzle.PatternPuzzleScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.games.shapematcher.ShapeMatcherScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.games.simplemaze.SimpleMazeScreen
@@ -38,7 +39,7 @@ fun GameScreen(childId: String, category: String, difficultyLevel: String, child
                 when (difficultyLevelEnum) {
                     DifficultyLevel.EASY -> {
                         when (childStageEnum) {
-                            ChildStage.EARLY_CHILDHOOD -> ShapeMatcherScreen()
+                            ChildStage.EARLY_CHILDHOOD -> DragAndDropScreen()
                             // Add cases for other stages if necessary
                             else -> DefaultScreen()
                         }

@@ -40,6 +40,7 @@ import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.child.ChildHomeScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.games.GameScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.parent.ParentHomeScreen
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.video.VideoScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.Common.mAuth
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.getDp
 
@@ -191,6 +192,12 @@ fun HolderScreen(
                         .replace("{childStage}", childStage)
                 )
             },
+            onVideoSelected = { childStage, category ->
+                controller.navigate(
+                    Screen.Video.route.replace("{childStage}", childStage)
+                        .replace("{category}", category)
+                )
+            },
             onNewScreenRequest = { route, patientId ->
                 controller.navigate(route.replace("{patientId}", "$patientId"))
             },
@@ -223,6 +230,7 @@ fun ScaffoldSection(
     ) -> Unit,
     onQuizCompleted: (score: Int) -> Unit,
     onGameStart: (childId: String, category: String, difficultyLevel: String, childStage: String) -> Unit,
+    onVideoSelected: (childStage: String, category: String) -> Unit,
     onNewScreenRequest: (route: String, id: String?) -> Unit,
     onLogoutRequested: () -> Unit
 ) {
@@ -362,6 +370,7 @@ fun ScaffoldSection(
                         selectedDifficulty = selectedDifficulty!!,
                         onQuizStart = onQuizStart,
                         onGameStart = onGameStart,
+                        onVideoSelected = onVideoSelected,
                         navController = controller,
                     )
 
@@ -416,8 +425,16 @@ fun ScaffoldSection(
                     )
 
                 }
+                composable(
+                    Screen.Video.route,
+                    arguments = listOf(navArgument("childStage") { type = NavType.StringType },
+                        navArgument("category") { type = NavType.StringType })
+                ) {
+                    val childStage = it.arguments?.getString("childStage") ?: ""
+                    val category = it.arguments?.getString("category") ?: ""
+                    VideoScreen(childStage = childStage, category = category)
+                }
 
-                //{activityTypeKey}/{childId}/{category}/{childStage}
 
             }
         }

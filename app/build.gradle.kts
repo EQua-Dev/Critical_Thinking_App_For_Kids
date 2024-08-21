@@ -138,4 +138,9 @@ dependencies {
     //run-time permission manager
     implementation (libs.dexter)
 
+    implementation (libs.androidx.foundation)
+
+    implementation (libs.core)
+
+
 }

@@ -31,6 +31,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.models.getActivityTypeByKey
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.models.getCategoryByKey
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.HelpMe
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.viewmodels.ActivityTypeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,10 +48,13 @@ fun ActivityTypeRuleScreen(
         childStage: String,
         difficultyLevel: String
     ) -> Unit,
-    onGameStart: (childId: String,
-                  category: String,
-                  difficultyLevel: String,
-                  childStage: String) -> Unit,
+    onGameStart: (
+        childId: String,
+        category: String,
+        difficultyLevel: String,
+        childStage: String
+    ) -> Unit,
+    onVideoSelected: (childStage: String, category: String) -> Unit,
     navController: NavController,
     activityTypeViewModel: ActivityTypeViewModel = hiltViewModel()
 ) {
@@ -162,9 +166,15 @@ childStage
                 "quiz" -> {
                     onQuizStart(childId, categoryKey, childStage, selectedDifficulty)
                 }
+
                 "game" -> {
 
                     onGameStart(childId, categoryKey, selectedDifficulty, childStage)
+                }
+
+                "video" -> {
+                    val stageOfChild = HelpMe.convertToSnakeCase(childStage)
+                    onVideoSelected(stageOfChild, categoryKey)
                 }
 
             }

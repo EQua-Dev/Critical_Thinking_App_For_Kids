@@ -74,7 +74,7 @@ fun AddChildBottomSheet(
                     onValueChange = { gender = it },
                     label = "Gender",
                     placeholder = "Gender",
-                    options = listOf("Male", "Female")
+                    options = listOf("Male", "Female", "Custom")
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
