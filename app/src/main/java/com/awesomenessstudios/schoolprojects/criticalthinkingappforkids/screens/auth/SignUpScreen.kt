@@ -86,7 +86,11 @@ fun SignUpScreen(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            Text(text = "Sign Up", style = MaterialTheme.typography.headlineMedium)
+            Text(
+                text = "Sign Up",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -190,18 +194,18 @@ fun SignUpScreen(
                                     phoneNumber,
                                     callback = { sendOtpStatus, sendOtpMessage ->
 
-                                       // if (sendOtpStatus) {
-                                            // Show OTP Bottom Sheet
-                                            showOtpBottomSheet = true
-                                            authViewModel.sendOtp(
-                                                context,
-                                                phoneNumber
-                                            ) { success, message ->
-                                                if (!success) {
-                                                    errorMessage.value = message
-                                                    showSnackbar = true
-                                                }
+                                        // if (sendOtpStatus) {
+                                        // Show OTP Bottom Sheet
+                                        showOtpBottomSheet = true
+                                        authViewModel.sendOtp(
+                                            context,
+                                            phoneNumber
+                                        ) { success, message ->
+                                            if (!success) {
+                                                errorMessage.value = message
+                                                showSnackbar = true
                                             }
+                                        }
                                         //}
                                     })
                             } else {

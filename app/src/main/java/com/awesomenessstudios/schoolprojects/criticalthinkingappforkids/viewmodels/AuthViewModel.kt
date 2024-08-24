@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.models.Parent
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.Common
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.Common.LOCATION_PERMISSION_REQUEST_CODE
@@ -26,6 +27,7 @@ import com.google.firebase.auth.PhoneAuthProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -42,7 +44,6 @@ class AuthViewModel @Inject constructor() : ViewModel() {
 
     private val _userLocation = MutableLiveData<String?>()
     val userLocation: LiveData<String?> get() = _userLocation
-
 
 
     val email = mutableStateOf<String>("")
@@ -239,28 +240,28 @@ class AuthViewModel @Inject constructor() : ViewModel() {
                 if (task.isSuccessful) {
                     val userId = mAuth.currentUser?.uid ?: return@addOnCompleteListener
 
-                        val parentRef = parentsCollectionRef.document(userId)
+                    val parentRef = parentsCollectionRef.document(userId)
 
-                        val updates = hashMapOf<String, Any>(
-                            "lastLoginLocation" to userLocation,
-                            "lastLogin" to System.currentTimeMillis().toString()
-                        )
-                        parentRef.get().addOnSuccessListener { document ->
-                            if (document.exists()) {
-                                parentRef.update(updates)
-                                    .addOnSuccessListener {
-                                        onSuccess()
-                                    }
-                                    .addOnFailureListener { e ->
-                                        onFailure(e)
-                                    }
-                            } else {
-                                // Handle case where the parent document does not exist
-                                onFailure(Exception("Parent document does not exist"))
-                            }
-                        }.addOnFailureListener { e ->
-                            onFailure(e)
+                    val updates = hashMapOf<String, Any>(
+                        "lastLoginLocation" to userLocation,
+                        "lastLogin" to System.currentTimeMillis().toString()
+                    )
+                    parentRef.get().addOnSuccessListener { document ->
+                        if (document.exists()) {
+                            parentRef.update(updates)
+                                .addOnSuccessListener {
+                                    onSuccess()
+                                }
+                                .addOnFailureListener { e ->
+                                    onFailure(e)
+                                }
+                        } else {
+                            // Handle case where the parent document does not exist
+                            onFailure(Exception("Parent document does not exist"))
                         }
+                    }.addOnFailureListener { e ->
+                        onFailure(e)
+                    }
                     //getLastLocation(context) { location ->
 
                     // }
@@ -284,33 +285,31 @@ class AuthViewModel @Inject constructor() : ViewModel() {
             }
     }
 
-    /*
-        fun resetPassword(
-            email: String,
-            onLoading: (Boolean) -> Unit,
-            onResetLinkSent: (String) -> Unit,
-            onResetLinkNotSent: (String) -> Unit
-        ) = CoroutineScope(Dispatchers.IO).launch {
-            onLoading(true)
-            if (!isValidEmail(email)) {
-                onLoading(false)
-            } else {
-                mAuth.sendPasswordResetEmail(email)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            onLoading(false)
-                            onResetLinkSent("Password Reset Link Sent\nCheck your email")
-                        } else {
-                            onLoading(false)
-                            onResetLinkNotSent("Password Reset Link Sent\nCheck your email")
-                        }
-                    }.addOnFailureListener { e ->
+    fun resetPassword(
+        email: String,
+        onLoading: (Boolean) -> Unit,
+        onResetLinkSent: (String) -> Unit,
+        onResetLinkNotSent: (String) -> Unit
+    ) = viewModelScope.launch {
+        onLoading(true)
+        if (!isValidEmail(email)) {
+            onLoading(false)
+        } else {
+            mAuth.sendPasswordResetEmail(email)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
                         onLoading(false)
-                        onResetLinkSent(e.message ?: "Some error occurred")
+                        onResetLinkSent("Password Reset Link Sent\nCheck your email")
+                    } else {
+                        onLoading(false)
+                        onResetLinkNotSent("Password Reset Link Sent\nCheck your email")
                     }
-            }
+                }.addOnFailureListener { e ->
+                    onLoading(false)
+                    onResetLinkSent(e.message ?: "Some error occurred")
+                }
+        }
     }
-    */
 
 
     private fun passwordStrength(password: String): PasswordStrength {
@@ -367,4 +366,9 @@ class AuthViewModel @Inject constructor() : ViewModel() {
             }
         }
     }
+}
+
+private fun isValidEmail(email: String): Boolean {
+    val emailRegex = Regex("^\\w+([.-]?\\w+)*@\\w+([.-]?\\w+)*(\\.\\w{2,})+\$")
+    return emailRegex.matches(email)
 }

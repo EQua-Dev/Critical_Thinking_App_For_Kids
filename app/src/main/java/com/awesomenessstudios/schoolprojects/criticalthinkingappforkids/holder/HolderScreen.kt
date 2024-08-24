@@ -384,7 +384,7 @@ fun ScaffoldSection(
                         navArgument(name = "childStage") { type = NavType.StringType },
                         navArgument(name = "activityTypeKey") { type = NavType.StringType },
                         navArgument(name = "selectedDifficulty") { type = NavType.StringType },
-                        navArgument(name = "lastScore") { type = NavType.StringType },
+                        navArgument(name = "lastScore") { type = NavType.IntType },
                         navArgument(name = "lastPlayed") { type = NavType.StringType },
                     ),
                 ) {
@@ -394,7 +394,7 @@ fun ScaffoldSection(
                     val childStage = it.arguments?.getString("childStage")
                     val activityTypeKey = it.arguments?.getString("activityTypeKey")
                     val selectedDifficulty = it.arguments?.getString("selectedDifficulty")
-                    val lastScore = it.arguments?.getString("lastScore")
+                    val lastScore = it.arguments?.getInt("lastScore")
                     val lastPlayed = it.arguments?.getString("lastPlayed")
 
                     ActivityTypeRuleScreen(
@@ -402,7 +402,7 @@ fun ScaffoldSection(
                         childStage = childStage!!,
                         categoryKey = categoryKey!!,
                         childId = childId!!,
-                        lastScore = lastScore!!,
+                        lastScore = lastScore!!.toString(),
                         lastPlayed = lastPlayed!!,
                         selectedDifficulty = selectedDifficulty!!,
                         onLeaderBoardSelected = onLeaderBoardSelected,

@@ -19,4 +19,5 @@
     <string name="outdoor_tasks">Outdoor Task</string>
     <string name="quiz_result">Quiz Result</string>
     <string name="leaderboard">Leaderboard</string>
+    <string name="reset_password">Reset Password</string>
 </resources>

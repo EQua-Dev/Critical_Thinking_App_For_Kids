@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -27,11 +29,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.R
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.navigation.Screen
@@ -81,38 +85,45 @@ fun LoginScreen(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            Text(text = "Login", style = MaterialTheme.typography.headlineMedium)
+            Text(
+                text
+                = "Login",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary // Vibrant green color
+            )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             CustomTextField(
                 value = email,
                 onValueChange = { authViewModel.updateEmail(it) },
                 label = "Email",
-                placeholder = "Email",
+                placeholder = "Enter your email",
                 keyboardType = KeyboardType.Email,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            CustomTextField(
-                value = password,
-                onValueChange = { authViewModel.updatePassword(it) },
-                label = "Password",
-                placeholder = "Password",
-                keyboardType = KeyboardType.Password,
-                isPassword = true,
                 modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            CustomTextField(
+                value = password,
+                onValueChange = { authViewModel.updatePassword(it) },
+                label = "Password",
+                placeholder = "Enter your password",
+                keyboardType = KeyboardType.Password,
+                isPassword = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
             FlatButton(
-                text = stringResource(id = R.string.login),
                 onClick = {
                     authViewModel.updateLoadingStatus(true)
-                    authViewModel.loginUser(email, password, userLocation!!,
+                    authViewModel.loginUser(
+                        email,
+                        password,
+                        userLocation!!,
                         onSuccess = {
                             authViewModel.updateLoadingStatus(false)
                             onNavigationRequested(Screen.ParentHome.route, true)
@@ -123,47 +134,34 @@ fun LoginScreen(
                         }
                     )
                 },
-                modifier = Modifier.fillMaxWidth()
+                contentColor = Color(0xFFFFFFFF), // Vibrant green button
+                backgroundColor = Color(0xFF33691E), // Vibrant green button
+                modifier = Modifier.fillMaxWidth(), text = "Login"
             )
-
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Row(
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
+
             ) {
-                Spacer(modifier = Modifier.weight(1.0f))
                 TextButton(
-                    modifier = Modifier.weight(1.0f),
-                    onClick = {
-                        onNavigationRequested(Screen.ForgotPassword.route, false)
-                    }) {
-                    Text(
-                        "Forgot Password",
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.End
-                    )
+                    onClick
+                    = { onNavigationRequested(Screen.ForgotPassword.route, false) },
+                    contentPadding = PaddingValues(0.dp) // Remove default padding
+                ) {
+                    Text("Forgot Password?")
+                    // Adjust color based on your theme
                 }
-            }
 
-
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-
-                Text("New Account? ")
-                TextButton(onClick = {
-                    onNavigationRequested(Screen.Signup.route, false)
-                }) {
+                TextButton(
+                    onClick = { onNavigationRequested(Screen.Signup.route, false) },
+                    contentPadding = PaddingValues(0.dp) // Remove default padding
+                ) {
                     Text("Create Account")
+                    // Adjust color based on your theme
                 }
-
-
             }
-
-
         }
         if (showLoading.value) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

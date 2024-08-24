@@ -278,10 +278,10 @@ fun ActivityTypeOverviewScreen(
             ) {
                 items(difficultyLevels) { difficulty ->
                     val relevantScores = scoreDetails?.filter { it.difficulty == difficulty.name }
-                    val lastScore = relevantScores?.maxByOrNull { it.datePlayed }?.score ?: "N/A"
-                    val highScore = relevantScores?.maxByOrNull { it.score }?.score ?: "N/A"
+                    val lastScore = relevantScores?.maxByOrNull { it.datePlayed }?.score
+                    val highScore = relevantScores?.maxByOrNull { it.score }?.score
                     val lastPlayed =
-                        relevantScores?.maxByOrNull { it.datePlayed }?.datePlayed ?: "N/A"
+                        relevantScores?.maxByOrNull { it.datePlayed }?.datePlayed
 
 
                     Card(
@@ -294,8 +294,10 @@ fun ActivityTypeOverviewScreen(
                                     childStage,
                                     activityKey,
                                     difficulty.name,
-                                    lastScore.toString(),
-                                    lastPlayed
+                                    (lastScore ?: "0").toString(),
+                                    lastPlayed ?: System
+                                        .currentTimeMillis()
+                                        .toString()
                                 )
                             },
                         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
@@ -317,12 +319,12 @@ fun ActivityTypeOverviewScreen(
                                 }
                             )
                             Text(
-                                text = "Last Score: $lastScore",
+                                text = "Last Score: ${lastScore ?: "N/A"} ",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = Color.Black
                             )
                             Text(
-                                text = "High Score: $highScore",
+                                text = "High Score: ${highScore ?: "N/A"}",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = Color.Black
                             )

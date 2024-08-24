@@ -1,6 +1,7 @@
 package com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.auth
 
 import CustomTextField
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.R
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.components.FlatButton
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.navigation.Screen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.ui.Dimension
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.ui.theme.Typography
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.viewmodels.AuthViewModel
@@ -81,8 +83,27 @@ fun ForgotPasswordScreen(
 
 
             FlatButton(
-                text = stringResource(id = R.string.login),
-                onClick = { /* Handle login */ },
+                text = stringResource(id = R.string.reset_password),
+                onClick = {
+                    authViewModel.resetPassword(email, onLoading = {
+                        authViewModel.updateLoadingStatus(it)
+
+                    }, onResetLinkNotSent = { error ->
+                        Toast.makeText(
+                            context,
+                            error,
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                    }, onResetLinkSent = {
+                        Toast.makeText(
+                            context,
+                            "Check your entered email for reset link",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        onNavigationRequested(Screen.Login.route, true)
+                    })
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 
