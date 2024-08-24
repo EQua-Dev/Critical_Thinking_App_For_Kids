@@ -13,9 +13,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -30,12 +33,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.R
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.components.AddChildBottomSheet
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.components.ChildItem
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.navigation.Screen
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.child.components.CustomTopAppBar
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.ui.theme.Typography
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.viewmodels.ParentViewModel
 
@@ -58,19 +66,15 @@ fun ParentHomeScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(text = "MindSpark")
-                },
+            CustomTopAppBar(
+                title =
+                stringResource(id = R.string.app_name),
+                onBackClick = null,
                 actions = {
-                    Text(
-                        text = "Hello, $username",
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        style = Typography.bodyLarge
-                    )
-                    IconButton(onClick = { /* Navigate to Logs Screen */ }) {
+                    /*IconButton(onClick = {
+                    }) {
                         Icon(Icons.Filled.List, contentDescription = "Logs")
-                    }
+                    }*/
                     IconButton(onClick = {
                         // Show logout confirmation dialog
                         parentViewModel.updateDialogStatus()
@@ -93,8 +97,14 @@ fun ParentHomeScreen(
                     .padding(16.dp)
             ) {
                 Text(
+                    text = "Hello, $username",
+                    modifier = Modifier.padding(8.dp),
+                    style = Typography.headlineSmall
+                )
+                Text(
                     text = "Children",
-                    style = Typography.headlineMedium
+                    style = Typography.bodyMedium.copy(fontSize = 18.sp),
+                    color = Color(0xFF33691E) // Vibrant green color
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -102,18 +112,23 @@ fun ParentHomeScreen(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp)
+                            .padding(vertical = 8.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
                     ) {
                         Text(
                             text = "No child, Click Add Child button to add a child",
                             modifier = Modifier.padding(16.dp),
-                            style = Typography.bodyLarge
+                            style = Typography.bodyLarge,
+                            color = Color(0xFF444444) // Grayish text color
                         )
                     }
                 } else {
-                    LazyColumn {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
                         items(children) { child ->
-                            ChildItem(child){ childId ->
+                            ChildItem(child) { childId ->
                                 onChildSelected(childId)
                             }
                         }
@@ -165,18 +180,18 @@ fun ParentHomeScreen(
             )
     }
 
-    if (addChildDialog.value){
+    if (addChildDialog.value) {
         AddChildBottomSheet(onChildAdded = { child ->
             parentViewModel.addChildToFirestore(child, callback = { status, message ->
-                if (status){
+                if (status) {
                     parentViewModel.updateAddChildDialogStatus()
-                }else{
+                } else {
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                 }
             })
         }, onClose = {
             parentViewModel.updateAddChildDialogStatus()
-        })
+        }, modifier = Modifier.fillMaxSize().padding(8.dp))
     }
 
 }

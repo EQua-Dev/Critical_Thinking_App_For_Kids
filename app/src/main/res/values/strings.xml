@@ -16,4 +16,7 @@
     <string name="quiz">Quiz</string>
     <string name="game">Game</string>
     <string name="video">Video</string>
+    <string name="outdoor_tasks">Outdoor Task</string>
+    <string name="quiz_result">Quiz Result</string>
+    <string name="leaderboard">Leaderboard</string>
 </resources>

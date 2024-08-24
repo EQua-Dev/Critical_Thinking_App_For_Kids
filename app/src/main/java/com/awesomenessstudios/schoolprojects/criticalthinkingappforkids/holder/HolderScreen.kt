@@ -30,7 +30,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.navigation.Screen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.providers.LocalNavHost
-import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.QuizScreen
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.quiz.QuizScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.auth.ForgotPasswordScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.auth.LoginScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.auth.SignUpScreen
@@ -39,7 +39,10 @@ import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.child.CategoryOverviewScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.child.ChildHomeScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.games.GameScreen
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.leaderboard.LeaderboardScreen
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.outdoortasks.OutdoorTaskScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.parent.ParentHomeScreen
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.quiz.QuizCompleteScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.video.VideoScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.Common.mAuth
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.getDp
@@ -155,12 +158,14 @@ fun HolderScreen(
                         .replace("{childStage}", childStage).replace("{category}", category)
                 )
             },
-            onActivityRuleSelected = { childId, categoryKey, childStage, activityTypeKey, selectedDifficulty ->
+            onActivityRuleSelected = { childId, categoryKey, childStage, activityTypeKey, selectedDifficulty, lastScore, lastPlayed ->
                 controller.navigate(
                     Screen.ActivityTypeRule.route.replace("{childId}", childId)
                         .replace("{categoryKey}", categoryKey).replace("{childStage}", childStage)
                         .replace("{activityTypeKey}", activityTypeKey)
                         .replace("{selectedDifficulty}", selectedDifficulty)
+                        .replace("{lastScore}", lastScore)
+                        .replace("{lastPlayed}", lastPlayed)
                 )
             },
             onChildSelected = { childId ->
@@ -178,8 +183,15 @@ fun HolderScreen(
                         .replace("{difficultyLevel}", difficultyLevel)
                 )
             },
-            onQuizCompleted = { score ->
-
+            onQuizCompleted = { score, childId, category, difficulty, childStage, quizDoneReason ->
+                controller.navigate(
+                    Screen.QuizResult.route.replace("{score}", score.toString())
+                        .replace("{childId}", childId)
+                        .replace("{category}", category)
+                        .replace("{difficulty}", difficulty)
+                        .replace("{childStage}", childStage)
+                        .replace("{quizDoneReason}", quizDoneReason)
+                )
             },
             onGameStart = { childId,
                             category,
@@ -196,6 +208,20 @@ fun HolderScreen(
                 controller.navigate(
                     Screen.Video.route.replace("{childStage}", childStage)
                         .replace("{category}", category)
+                )
+            },
+            onOutdoorTaskSelected = { childStage, difficulty, category ->
+                controller.navigate(
+                    Screen.OutdoorTasks.route.replace("{childStage}", childStage)
+                        .replace("{difficulty}", difficulty).replace("{category}", category)
+                )
+            },
+            onLeaderBoardSelected = { childId, category, childStage, difficulty ->
+                controller.navigate(
+                    Screen.Leaderboard.route.replace("{childId}", childId)
+                        .replace("{category}", category)
+                        .replace("{childStage}", childStage)
+                        .replace("{difficulty}", difficulty.toString())
                 )
             },
             onNewScreenRequest = { route, patientId ->
@@ -220,7 +246,7 @@ fun ScaffoldSection(
     onAccountCreated: () -> Unit,
     onCategorySelected: (childId: String, childStage: String, category: String) -> Unit,
     onActivityTypeSelected: (activityTypeKey: String, childId: String, category: String, childStage: String) -> Unit,
-    onActivityRuleSelected: (childId: String, categoryKey: String, childStage: String, activityTypeKey: String, selectedDifficulty: String) -> Unit,
+    onActivityRuleSelected: (childId: String, categoryKey: String, childStage: String, activityTypeKey: String, selectedDifficulty: String, lastScore: String, lastPlayed: String) -> Unit,
     onChildSelected: (childId: String) -> Unit,
     onQuizStart: (
         childId: String,
@@ -228,9 +254,11 @@ fun ScaffoldSection(
         childStage: String,
         difficultyLevel: String
     ) -> Unit,
-    onQuizCompleted: (score: Int) -> Unit,
+    onQuizCompleted: (score: Int, childId: String, category: String, difficulty: String, childStage: String, quizDoneReason: String) -> Unit,
     onGameStart: (childId: String, category: String, difficultyLevel: String, childStage: String) -> Unit,
     onVideoSelected: (childStage: String, category: String) -> Unit,
+    onOutdoorTaskSelected: (childStage: String, difficulty: String, category: String) -> Unit,
+    onLeaderBoardSelected: (childId: String, category: String, childStage: String, difficulty: String?) -> Unit,
     onNewScreenRequest: (route: String, id: String?) -> Unit,
     onLogoutRequested: () -> Unit
 ) {
@@ -295,7 +323,8 @@ fun ScaffoldSection(
                         childId = childId!!,
                         navController = controller,
                         onNavigationRequested = onNavigationRequested,
-                        onCategorySelected = onCategorySelected
+                        onCategorySelected = onCategorySelected,
+                        //onLeaderboardSelected = onLeaderBoardSelected
                     )
                 }
                 composable(
@@ -316,7 +345,8 @@ fun ScaffoldSection(
                         categoryKey = category!!,
                         childStage = childStage!!,
                         navController = controller,
-                        onActivityTypeSelected = onActivityTypeSelected
+                        onActivityTypeSelected = onActivityTypeSelected,
+                        onLeaderBoardSelected = onLeaderBoardSelected
 
                     )
                 }
@@ -342,6 +372,7 @@ fun ScaffoldSection(
                         childId = childId!!,
                         navController = controller,
                         onActivityRuleSelected = onActivityRuleSelected,
+                        onLeaderBoardSelected = onLeaderBoardSelected
                     )
 
                 }
@@ -353,6 +384,8 @@ fun ScaffoldSection(
                         navArgument(name = "childStage") { type = NavType.StringType },
                         navArgument(name = "activityTypeKey") { type = NavType.StringType },
                         navArgument(name = "selectedDifficulty") { type = NavType.StringType },
+                        navArgument(name = "lastScore") { type = NavType.StringType },
+                        navArgument(name = "lastPlayed") { type = NavType.StringType },
                     ),
                 ) {
                     onStatusBarColorChange(MaterialTheme.colorScheme.background)
@@ -361,16 +394,22 @@ fun ScaffoldSection(
                     val childStage = it.arguments?.getString("childStage")
                     val activityTypeKey = it.arguments?.getString("activityTypeKey")
                     val selectedDifficulty = it.arguments?.getString("selectedDifficulty")
+                    val lastScore = it.arguments?.getString("lastScore")
+                    val lastPlayed = it.arguments?.getString("lastPlayed")
 
                     ActivityTypeRuleScreen(
                         activityTypeKey = activityTypeKey!!,
                         childStage = childStage!!,
                         categoryKey = categoryKey!!,
                         childId = childId!!,
+                        lastScore = lastScore!!,
+                        lastPlayed = lastPlayed!!,
                         selectedDifficulty = selectedDifficulty!!,
+                        onLeaderBoardSelected = onLeaderBoardSelected,
                         onQuizStart = onQuizStart,
                         onGameStart = onGameStart,
                         onVideoSelected = onVideoSelected,
+                        onOutdoorTaskSelected = onOutdoorTaskSelected,
                         navController = controller,
                     )
 
@@ -430,12 +469,93 @@ fun ScaffoldSection(
                     arguments = listOf(navArgument("childStage") { type = NavType.StringType },
                         navArgument("category") { type = NavType.StringType })
                 ) {
+                    onStatusBarColorChange(MaterialTheme.colorScheme.background)
                     val childStage = it.arguments?.getString("childStage") ?: ""
                     val category = it.arguments?.getString("category") ?: ""
                     VideoScreen(childStage = childStage, category = category)
                 }
 
+                composable(
+                    Screen.OutdoorTasks.route,
+                    arguments = listOf(
+                        navArgument(name = "childStage") { type = NavType.StringType },
+                        navArgument(name = "difficulty") { type = NavType.StringType },
+                        navArgument(name = "category") { type = NavType.StringType },
+                    ),
+                ) {
+                    onStatusBarColorChange(MaterialTheme.colorScheme.background)
+                    val categoryKey = it.arguments?.getString("category")
+                    val difficulty = it.arguments?.getString("difficulty")
+                    val childStage = it.arguments?.getString("childStage")
 
+                    OutdoorTaskScreen(
+                        childStage = childStage!!,
+                        category = categoryKey!!,
+                        difficulty = difficulty!!,
+                        //onQuizCompleted = onQuizCompleted
+
+                    )
+
+                }
+
+                composable(
+                    Screen.QuizResult.route,
+                    arguments = listOf(
+                        navArgument(name = "score") { type = NavType.StringType },
+                        navArgument(name = "childId") { type = NavType.StringType },
+                        navArgument(name = "category") { type = NavType.StringType },
+                        navArgument(name = "difficulty") { type = NavType.StringType },
+                        navArgument(name = "childStage") { type = NavType.StringType },
+                        navArgument(name = "quizDoneReason") { type = NavType.StringType },
+                    ),
+                ) {
+                    onStatusBarColorChange(MaterialTheme.colorScheme.background)
+                    val score = it.arguments?.getString("score") ?: ""
+                    val childId = it.arguments?.getString("childId") ?: ""
+                    val category = it.arguments?.getString("category") ?: ""
+                    val difficulty = it.arguments?.getString("difficulty") ?: ""
+                    val childStage = it.arguments?.getString("childStage") ?: ""
+                    val quizDoneReason = it.arguments?.getString("quizDoneReason") ?: ""
+
+                    QuizCompleteScreen(
+                        score = score.toInt(),
+                        childId = childId,
+                        category = category,
+                        difficulty = difficulty,
+                        childStage = childStage,
+                        quizDoneReason = quizDoneReason,
+                        onComplete = onNavigationRequested,
+
+                        )
+                }
+                composable(
+                    Screen.Leaderboard.route,
+                    arguments = listOf(
+                        navArgument(name = "childId") { type = NavType.StringType },
+                        navArgument(name = "category") { type = NavType.StringType },
+                        navArgument(name = "childStage") { type = NavType.StringType },
+                        navArgument(name = "difficulty") {
+                            type = NavType.StringType
+                            nullable = true
+                        }),
+                ) {
+                    onStatusBarColorChange(MaterialTheme.colorScheme.background)
+                    val categoryKey = it.arguments?.getString("category")
+                    val difficulty = it.arguments?.getString("difficulty")
+                    val childStage = it.arguments?.getString("childStage")
+                    val childId = it.arguments?.getString("childId")
+
+                    LeaderboardScreen(
+                        childId = childId!!,
+                        category = categoryKey!!,
+                        childStage = childStage!!,
+                        difficulty = difficulty,
+                        navController = controller,
+                        //onQuizCompleted = onQuizCompleted
+
+                    )
+
+                }
             }
         }
     }

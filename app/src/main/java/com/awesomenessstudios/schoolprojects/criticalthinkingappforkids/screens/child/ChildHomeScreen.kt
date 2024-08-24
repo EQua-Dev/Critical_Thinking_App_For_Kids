@@ -1,6 +1,8 @@
 package com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.child
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,11 +10,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Leaderboard
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,15 +29,29 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.R
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.components.LottieAnimationView
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.models.categories
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.child.components.CategoryCard
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.child.components.CustomTopAppBar
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.viewmodels.ChildViewModel
+import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChildHomeScreen(
     childId: String,
@@ -43,77 +63,122 @@ fun ChildHomeScreen(
 ) {
 
     val childDetails by childViewModel.childDetails.observeAsState()
+    var showContent by remember { mutableStateOf(false) }
 
     // Fetch child details when the composable is first composed
     LaunchedEffect(childId) {
         childViewModel.fetchChildDetails(childId)
     }
-
-    // UI components
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        TopAppBar(
-            title = { Text(text = childDetails?.childName ?: "Loading...") },
-            navigationIcon = {
-                IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                }
-            },
-            actions = {
-                IconButton(onClick = { /* Navigate to leaderboard */ }) {
-                    Icon(Icons.Default.Leaderboard, contentDescription = "Leaderboard")
-                }
-            }
+    // Start the Lottie animation and show the content after it finishes
+    LaunchedEffect(Unit) {
+        delay(5000) // Adjust this duration to match your Lottie animation length
+        showContent = true
+    }
+    if (!showContent) {
+        // Show Lottie animation while loading
+        val lottieAnimations = listOf(
+            R.raw.earlychildhood,
+            R.raw.primary,
+            R.raw.preteen,
+            R.raw.teen,
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(text = "Category: ${childDetails?.childStage ?: "Loading..."}")
-            Text(
-                text = "Gender: ${childDetails?.childGender?.take(1) ?: "?"}",
-                style = MaterialTheme.typography.bodyMedium
-            )
+        fun getRandomLottieAnimation(): Int {
+            return lottieAnimations.random()
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Welcome ${childDetails?.childName ?: "Guest"}!",
-            style = MaterialTheme.typography.titleMedium
+        LottieAnimationView(
+            lottieFile = getRandomLottieAnimation(),
+            modifier = Modifier.fillMaxSize()
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+    } else {
+        // UI components
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            CustomTopAppBar(
+                title =
+                childDetails?.childName,
+                onBackClick = { navController.popBackStack() },
+                actions = {
+                    null
+                }
+            )
 
-        Text(
-            text = getCategoryDescription(childDetails?.childStage),
-            style = MaterialTheme.typography.bodyLarge
-        )
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F0F0)) // Light background color
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement
+                        = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Category: ${childDetails?.childStage ?: "Loading..."}",
+                            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                            color = Color(0xFF33691E) // Vibrant green color
+                        )
+                        val childGender = childDetails?.childGender?.take(1) ?: "?"
+                        Text(
+                            text = "Gender: ${
+                                when (childGender) {
+                                    "M" -> "👦🏼"
+                                    "F" -> "👧🏼"
+                                    else -> "🧒🏼"
 
-        // Display categories as clickable cards (as per previous example)
-        // You might need to adjust this based on your full design requirements
-
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(categories) { category ->
-                CategoryCard(category = category) {
-                    childDetails?.let {
-                        onCategorySelected(
-                            it.childId,
-                            childDetails?.childStage!!,
-                            category.categoryKey
+                                }
+                            }",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color(0xFF444444) // Grayish text color
                         )
                     }
 
-                    // Handle category click, e.g., navigate to a new screen
-                    //navController.navigate("category_details/${category.title}")
+                    Text(
+                        text = "Welcome ${childDetails?.childName ?: "Guest"}!",
+                        style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
+                        textAlign = TextAlign.Center
+                    )
+
+                    Text(
+                        text = getCategoryDescription(childDetails?.childStage),
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Display categories as clickable cards (as per previous example)
+            // You might need to adjust this based on your full design requirements
+
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(categories) { category ->
+                    CategoryCard(category = category) {
+                        childDetails?.let {
+                            onCategorySelected(
+                                it.childId,
+                                childDetails?.childStage!!,
+                                category.categoryKey
+                            )
+                        }
+
+                        // Handle category click, e.g., navigate to a new screen
+                        //navController.navigate("category_details/${category.title}")
+                    }
                 }
             }
         }

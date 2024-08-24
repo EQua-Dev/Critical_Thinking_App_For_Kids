@@ -2,8 +2,10 @@ package com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens
 
 import android.util.Log
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -26,12 +28,15 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.models.getActivityTypeByKey
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.models.getCategoryByKey
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.child.components.CustomTopAppBar
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.HelpMe
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.getDate
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.viewmodels.ActivityTypeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,6 +47,8 @@ fun ActivityTypeRuleScreen(
     categoryKey: String,
     childId: String,
     selectedDifficulty: String,
+    lastScore: String,
+    lastPlayed: String,
     onQuizStart: (
         childId: String,
         categoryKey: String,
@@ -55,7 +62,9 @@ fun ActivityTypeRuleScreen(
         childStage: String
     ) -> Unit,
     onVideoSelected: (childStage: String, category: String) -> Unit,
+    onOutdoorTaskSelected: (childStage: String, difficulty: String, category: String) -> Unit,
     navController: NavController,
+    onLeaderBoardSelected: (childId: String, category: String, childStage: String, difficulty: String?) -> Unit,
     activityTypeViewModel: ActivityTypeViewModel = hiltViewModel()
 ) {
 
@@ -106,25 +115,15 @@ fun ActivityTypeRuleScreen(
             .padding(16.dp)
     ) {
 
-        TopAppBar(
-            title = {
-                Text(
-                    text = selectedDifficulty,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-
-            },
-            navigationIcon = {
-                IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(Icons.Default.ChevronLeft, contentDescription = "Back")
-                }
-            },
+        CustomTopAppBar(
+            title = selectedDifficulty,
+            onBackClick = { navController.popBackStack() },
             actions = {
-                IconButton(onClick = { /* Navigate to leaderboard */ }) {
+                IconButton(onClick = {
+                    onLeaderBoardSelected(childId, categoryKey, childStage, selectedDifficulty)
+                }) {
                     Icon(Icons.Default.Leaderboard, contentDescription = "Leaderboard")
                 }
-
                 IconButton(onClick = { /* Navigate to home */ }) {
                     Icon(Icons.Default.Home, contentDescription = "Home")
                 }
@@ -150,10 +149,59 @@ fun ActivityTypeRuleScreen(
                     )
                 } ?: run { Text("N/A") }*/
 
-                Text(text = "Last Level Played: ${gameDetail.value?.get("lastLevel") ?: "N/A"}")
-                Text(text = "Last Score: ${gameDetail.value?.get("lastScore") ?: "N/A"}")
+                Text(
+                    text = "Last Played: ${
+                        getDate(
+                            lastPlayed.toLong(),
+                            "EEEE dd MMM, yyyy"
+                        ) ?: "N/A"
+                    }"
+                )
+                Text(text = "Last Score: ${lastScore ?: "N/A"}")
             }
         }
+
+        // Conditionally display the rules if activityTypeKey is "quiz"
+        if (activityTypeKey == "quiz") {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            ) {
+                Text(
+                    text = "Quiz Rules",
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+
+                Text(
+                    text = "1. Each question has a 30-second timer.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = "2. If the timer runs out, you lose a life and the next question will be presented.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = "3. You earn points for each correct answer.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = "4. Using a hint reduces the points awarded for a correct answer.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = "5. You can use a hint by clicking the lightbulb icon.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = "6. The quiz ends when you run out of lives or answer all questions.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
             /*
@@ -162,6 +210,8 @@ category
 difficultyLevel
 childStage
             * */
+            val stageOfChild = HelpMe.convertToSnakeCase(childStage)
+
             when (activityTypeKey) {
                 "quiz" -> {
                     onQuizStart(childId, categoryKey, childStage, selectedDifficulty)
@@ -173,13 +223,16 @@ childStage
                 }
 
                 "video" -> {
-                    val stageOfChild = HelpMe.convertToSnakeCase(childStage)
                     onVideoSelected(stageOfChild, categoryKey)
+                }
+
+                "outdoor_task" -> {
+                    onOutdoorTaskSelected(stageOfChild, selectedDifficulty, categoryKey)
                 }
 
             }
         }) {
-            Text(text = "Start")
+            Text(text = "Start", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
         }
     }
 

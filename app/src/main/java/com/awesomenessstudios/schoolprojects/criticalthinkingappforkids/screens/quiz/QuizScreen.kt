@@ -1,4 +1,4 @@
-package com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens
+package com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.quiz
 
 
 import androidx.compose.foundation.Canvas
@@ -14,19 +14,23 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Help
+import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,8 +41,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.models.QuizQuestion
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.viewmodels.QuizViewModel
 import kotlinx.coroutines.delay
@@ -51,17 +55,17 @@ fun QuizScreen(
     childStage: String,
     difficultyLevel: String,
     quizViewModel: QuizViewModel = hiltViewModel(),
-    onQuizCompleted: (score: Int) -> Unit
+    onQuizCompleted: (score: Int, childId: String, category: String, difficulty: String, childStage: String, quizDoneReason: String) -> Unit
 ) {
 
     val quizQuestions by quizViewModel.quizQuestions.collectAsState()
 
     // State variables
     var score by remember { mutableStateOf(0) }
-    var lives = remember { mutableStateOf(1) } // Start with one life
+    val lives by quizViewModel.lives.collectAsState() // Start with one life
     var currentQuestionIndex by remember { mutableStateOf(0) }
-    var timeRemaining by remember { mutableStateOf(30) }
-    var hintUsed by remember { mutableStateOf(false) }
+    var timeRemaining by remember { mutableIntStateOf(30) }
+    val hintUsed by quizViewModel.hintUsed.collectAsState()
 
     // Get the current question
     val currentQuestion = quizQuestions.getOrNull(currentQuestionIndex)
@@ -76,7 +80,17 @@ fun QuizScreen(
             timeRemaining -= 1
         } else {
             // When time runs out
-            reduceLife(lives, onQuizCompleted, score)
+            reduceLife(
+                quizViewModel,
+                lives,
+                onQuizCompleted,
+                score,
+                childId,
+                categoryKey,
+                difficultyLevel,
+                childStage
+            )
+            currentQuestionIndex++
         }
     }
 
@@ -97,18 +111,40 @@ fun QuizScreen(
                     currentQuestion.answer,
                     onCorrectAnswer = {
                         score += if (hintUsed) currentQuestion.points.toInt() - 2 else currentQuestion.points.toInt()
-                        hintUsed = false
                         timeRemaining = 30 // Reset the timer
                         currentQuestionIndex++
-                        checkQuizEnd(quizQuestions, currentQuestionIndex, score, onQuizCompleted)
+                        quizViewModel.updateLives("add")
+                        quizViewModel.updateHintUsed(false)
+                        checkQuizEnd(
+                            quizQuestions,
+                            currentQuestionIndex,
+                            score,
+                            onQuizCompleted,
+                            childId,
+                            categoryKey,
+                            difficultyLevel,
+                            childStage
+                        )
                     },
                     onIncorrectAnswer = {
-                        reduceLife(lives, onQuizCompleted, score)
+                        reduceLife(
+                            quizViewModel,
+                            lives,
+                            onQuizCompleted,
+                            score,
+                            childId,
+                            categoryKey,
+                            difficultyLevel,
+                            childStage
+                        )
+                        currentQuestionIndex++
+                        quizViewModel.updateHintUsed(false)
                     }
                 )
             },
+            hintUsed = hintUsed,
             onHintUsed = {
-                hintUsed = true
+                quizViewModel.updateHintUsed(it)
             },
             answeredQuestions = currentQuestionIndex,
             totalQuestions = quizQuestions.size
@@ -121,13 +157,14 @@ fun QuizScreen(
 @Composable
 fun QuizContent(
     score: Int,
-    lives: MutableState<Int>,
+    lives: Int,
     timeRemaining: Int,
     question: String,
     hint: String,
     options: List<String>,
     onOptionSelected: (String) -> Unit,
-    onHintUsed: () -> Unit,
+    hintUsed: Boolean,
+    onHintUsed: (Boolean) -> Unit,
     answeredQuestions: Int,
     totalQuestions: Int
 ) {
@@ -145,16 +182,17 @@ fun QuizContent(
             // Score
             Text(
                 text = "Score: $score",
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp),
+                color = Color(0xFF33691E),
                 modifier = Modifier.padding(8.dp)
             )
 
             // Lives
             Row {
                 repeat(5) { index ->
-                    val heartColor = if (index < lives.value) Color.Red else Color.Gray
+                    val heartColor = if (index < lives) Color.Red else Color.Gray
                     Icon(
-                        imageVector = Icons.Default.Favorite,
+                        imageVector = Icons.Default.Favorite, // Outline heart for lives
                         contentDescription = null,
                         tint = heartColor,
                         modifier = Modifier.size(24.dp)
@@ -167,7 +205,7 @@ fun QuizContent(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .size(50.dp)
-                    .background(Color.LightGray, shape = CircleShape)
+                    .background(Color.Transparent, shape = CircleShape)
             ) {
                 TimerView(timeRemaining = timeRemaining)
             }
@@ -176,41 +214,56 @@ fun QuizContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         // Question Pane
-        Box(
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
-                .background(Color.LightGray)
-                .padding(16.dp)
+                .weight(1f),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
         ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = question,
-                    style = MaterialTheme.typography.titleLarge,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(16.dp)
-                )
 
-                if (hint.isNotEmpty()) {
+
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Text(
-                        text = "Hint: $hint",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(top = 8.dp)
+                        text = question,
+                        style = MaterialTheme.typography.headlineMedium.copy(fontSize = 20.sp),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(16.dp)
                     )
+
+
+                    if (hint.isNotEmpty() && hintUsed) {
+                        Text(
+                            text = "Hint: $hint",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
                 }
+
+                if (!hintUsed) {
+                    // Hint Icon
+                    IconButton(
+                        onClick = { onHintUsed(true) },
+                        modifier = Modifier.align(Alignment.TopEnd) // Aligns the IconButton to the top right
+                    ) {
+                        Icon(
+                            Icons.Default.Lightbulb,
+                            contentDescription = "Hint",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+
             }
 
-            // Hint Icon
-            IconButton(
-                onClick = onHintUsed,
-                modifier = Modifier.align(Alignment.TopEnd)
-            ) {
-                Icon(Icons.Default.Help, contentDescription = "Hint", tint = Color.Blue)
-            }
+
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -218,7 +271,8 @@ fun QuizContent(
         // Progress Indicator for Questions
         Text(
             text = "Question: ${answeredQuestions + 1}/$totalQuestions",
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp),
+            color = Color(0xFF33691E),
             modifier = Modifier.padding(8.dp)
         )
 
@@ -232,7 +286,13 @@ fun QuizContent(
             options.forEach { option ->
                 Button(
                     onClick = { onOptionSelected(option) },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            Color(0xFFF0F0F0),
+                            shape = RoundedCornerShape(16.dp)
+                        ), // Light background for options
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
                 ) {
                     Text(text = option)
                 }
@@ -277,14 +337,26 @@ fun handleOptionSelection(
 }
 
 fun reduceLife(
-    lives: MutableState<Int>,
-    onQuizCompleted: (score: Int) -> Unit,
+    quizViewModel: QuizViewModel,
+    lives: Int,
+    onQuizCompleted: (score: Int, childId: String, category: String, difficulty: String, childStage: String, quizDoneReason: String) -> Unit,
     score: Int,
+    childId: String,
+    categoryKey: String,
+    difficultyLevel: String,
+    childStage: String,
 ) {
-    if (lives.value > 1) {
-        lives.value -= 1
+    if (lives > 1) {
+        quizViewModel.updateLives("minus")
     } else {
-        onQuizCompleted(score)
+        onQuizCompleted(
+            score,
+            childId,
+            categoryKey,
+            difficultyLevel,
+            childStage,
+            "You ran out of lives 💔"
+        )
     }
 }
 
@@ -292,9 +364,20 @@ fun checkQuizEnd(
     questions: List<QuizQuestion>,
     currentQuestionIndex: Int,
     score: Int,
-    onQuizCompleted: (score: Int) -> Unit
+    onQuizCompleted: (score: Int, childId: String, category: String, difficulty: String, childStage: String, quizDoneReason: String) -> Unit,
+    childId: String,
+    categoryKey: String,
+    difficultyLevel: String,
+    childStage: String
 ) {
     if (currentQuestionIndex >= questions.size) {
-        onQuizCompleted(score)
+        onQuizCompleted(
+            score,
+            childId,
+            categoryKey,
+            difficultyLevel,
+            childStage,
+            "You have answered every available question 👏🏽"
+        )
     }
 }

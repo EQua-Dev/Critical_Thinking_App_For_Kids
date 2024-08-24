@@ -3,6 +3,7 @@ package com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.compone
 import CustomTextField
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -16,8 +17,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.models.Child
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.ui.theme.Typography
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.Common.mAuth
@@ -28,7 +31,8 @@ import java.util.UUID
 @Composable
 fun AddChildBottomSheet(
     onChildAdded: (Child) -> Unit,
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
@@ -51,30 +55,43 @@ fun AddChildBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onClose,
         content = {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = "Add Child", style = Typography.headlineMedium)
-                Spacer(modifier = Modifier.height(8.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(4.dp)
+            ) {
+                Text(
+                    text = "Add Child",
+                    style = Typography.bodyLarge.copy(fontSize = 18.sp),
+                    color = Color(0xFF33691E) // Vibrant green color
+                )
+                Spacer(modifier = Modifier.height(16.dp))
 
                 CustomTextField(
                     value = firstName,
                     onValueChange = { firstName = it },
                     label = "Child Name",
                     keyboardType = KeyboardType.Text,
-                    placeholder = "Child Name"
+                    placeholder = "Child Name",
+                    modifier = Modifier.fillMaxWidth()
                 )
+
                 CustomTextField(
                     value = age,
                     onValueChange = { age = it },
                     label = "Age",
                     keyboardType = KeyboardType.Number,
-                    placeholder = "Age"
+                    placeholder = "Age",
+                    modifier = Modifier.fillMaxWidth()
                 )
+
                 DropdownField(
                     selectedValue = gender,
                     onValueChange = { gender = it },
                     label = "Gender",
                     placeholder = "Gender",
-                    options = listOf("Male", "Female", "Custom")
+                    options = listOf("Male", "Female", "Custom"),
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -96,7 +113,7 @@ fun AddChildBottomSheet(
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Add Child")
+                    Text("Add Child", color = Color.White)
                 }
             }
         }

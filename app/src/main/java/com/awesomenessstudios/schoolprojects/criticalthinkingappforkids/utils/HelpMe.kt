@@ -10,6 +10,7 @@ import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.util.Log
+import androidx.compose.ui.text.capitalize
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContentProviderCompat.requireContext
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -42,7 +43,7 @@ object HelpMe {
         fusedLocationClient.lastLocation.addOnCompleteListener(OnCompleteListener<Location> { task ->
             if (task.isSuccessful && task.result != null) {
                 val location = task.result
-               // Log.d(TAG, "getCurrentAddress: $location")
+                // Log.d(TAG, "getCurrentAddress: $location")
                 getAddressFromLocation(context, location, callback)
             } else {
                 callback(null) // Failed to get location
@@ -158,6 +159,12 @@ object HelpMe {
         return stage
             .replace(" ", "_")  // Replace spaces with underscores
             .lowercase()        // Convert the entire string to lowercase
+    }
+
+    fun revertFromSnakeCase(text: String): String {
+        return text
+            .replace("_", " ")  // Replace spaces with underscores
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }        // Capitalize the entire string
     }
 
 }

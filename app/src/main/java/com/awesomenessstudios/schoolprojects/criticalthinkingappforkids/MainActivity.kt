@@ -2,6 +2,7 @@ package com.awesomenessstudios.schoolprojects.criticalthinkingappforkids
 
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -73,6 +74,8 @@ class MainActivity : ComponentActivity() {
 
             }
         }
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+
     }
 }
 
