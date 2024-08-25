@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.games.draganddrop.DragAndDropScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.games.patternpuzzle.PatternPuzzleScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.games.shapematcher.ShapeMatcherScreen
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.games.shapesandcolors.ShapesAndColorsScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.games.simplemaze.SimpleMazeScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.games.sortinggame.SortingGameScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.games.tictactoe.TicTacToeScreen
@@ -41,7 +42,7 @@ fun GameScreen(childId: String, category: String, difficultyLevel: String, child
                 when (difficultyLevelEnum) {
                     DifficultyLevel.EASY -> {
                         when (childStageEnum) {
-                            ChildStage.EARLY_CHILDHOOD -> SortingGameScreen()
+                            ChildStage.EARLY_CHILDHOOD -> ShapesAndColorsScreen()
                             // Add cases for other stages if necessary
                             else -> DefaultScreen()
                         }

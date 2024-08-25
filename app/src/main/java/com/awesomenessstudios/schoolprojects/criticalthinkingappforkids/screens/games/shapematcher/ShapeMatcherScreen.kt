@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.TriangleShape
 import kotlin.random.Random
 
 @Composable
@@ -107,36 +108,3 @@ fun getShape(shapeType: String): Shape {
 }
 
 data class CustomShape(val type: String, val position: Offset)
-
-object TriangleShape : Shape {
-    override fun createOutline(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density
-    ): Outline {
-        val path = Path().apply {
-            moveTo(size.width / 2f, 0f)
-            lineTo(size.width, size.height)
-            lineTo(0f, size.height)
-            close()
-        }
-        return Outline.Generic(path)
-    }
-}
-object PentagonShape : Shape {
-    override fun createOutline(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density
-    ): Outline {
-        val path = Path().apply {
-            moveTo(size.width / 2f, 0f)
-            lineTo(size.width, size.height * 0.38f)
-            lineTo(size.width * 0.81f, size.height)
-            lineTo(size.width * 0.19f, size.height)
-            lineTo(0f, size.height * 0.38f)
-            close()
-        }
-        return Outline.Generic(path)
-    }
-}

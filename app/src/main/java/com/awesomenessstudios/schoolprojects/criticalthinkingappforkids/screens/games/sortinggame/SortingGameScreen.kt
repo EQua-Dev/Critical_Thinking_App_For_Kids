@@ -34,8 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.models.ShapeItem
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.models.ShapeType
-import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.games.shapematcher.PentagonShape
-import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.games.shapematcher.TriangleShape
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.PentagonShape
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.TriangleShape
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.viewmodels.SortingGameViewModel
 import kotlin.math.roundToInt
 
@@ -128,6 +128,8 @@ fun ShapeItem.toShape(): Shape {
         ShapeType.PENTAGON -> PentagonShape
     }
 }
+
+
 
 // Custom shapes such as TriangleShape and PentagonShape would be implemented separately.
 
