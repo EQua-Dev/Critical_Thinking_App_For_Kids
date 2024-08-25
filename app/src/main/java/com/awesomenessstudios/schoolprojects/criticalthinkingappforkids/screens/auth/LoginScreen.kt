@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -42,6 +43,10 @@ import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.navigati
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.viewmodels.AuthViewModel
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.components.CustomSnackbar
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.components.FlatButton
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.components.LottieAnimationView
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.ui.theme.Typography
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.LoadingDialog
+import kotlinx.coroutines.delay
 
 @Composable
 fun LoginScreen(
@@ -59,6 +64,7 @@ fun LoginScreen(
     val errorMessage = remember { mutableStateOf("") }
     val showLoading by remember { mutableStateOf(authViewModel.showLoading) }
     var showSnackbar by remember { mutableStateOf(false) }
+    var showContent by remember { mutableStateOf(false) }
 
     val userLocation by authViewModel.userLocation.observeAsState()
 
@@ -75,99 +81,120 @@ fun LoginScreen(
     LaunchedEffect(Unit) {
         locationPermissionRequest.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
     }
-    Box(modifier = Modifier.padding(12.dp), contentAlignment = Alignment.Center) {
+    // Start the Lottie animation and show the content after it finishes
+    LaunchedEffect(Unit) {
+        delay(5000) // Adjust this duration to match your Lottie animation length
+        showContent = true
+    }
+
+    Box(modifier = Modifier.padding(4.dp), contentAlignment = Alignment.Center) {
 
 
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Text(
-                text
-                = "Login",
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary // Vibrant green color
-            )
+        if (!showContent) {
+            // Show Lottie animation while loading
+            val lottieAnimation = R.raw.crithink
+            Column {
+                LottieAnimationView(
+                    lottieFile = lottieAnimation,
+                )
 
-            Spacer(modifier = Modifier.height(32.dp))
+                Text(
+                    text = stringResource(id = R.string.app_name),
+                    fontFamily = FontFamily.Cursive,
+                    style = Typography.headlineMedium
+                )
+            }
 
-            CustomTextField(
-                value = email,
-                onValueChange = { authViewModel.updateEmail(it) },
-                label = "Email",
-                placeholder = "Enter your email",
-                keyboardType = KeyboardType.Email,
-                modifier = Modifier.fillMaxWidth()
-            )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            CustomTextField(
-                value = password,
-                onValueChange = { authViewModel.updatePassword(it) },
-                label = "Password",
-                placeholder = "Enter your password",
-                keyboardType = KeyboardType.Password,
-                isPassword = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            FlatButton(
-                onClick = {
-                    authViewModel.updateLoadingStatus(true)
-                    authViewModel.loginUser(
-                        email,
-                        password,
-                        userLocation!!,
-                        onSuccess = {
-                            authViewModel.updateLoadingStatus(false)
-                            onNavigationRequested(Screen.ParentHome.route, true)
-                        },
-                        onFailure = { exception ->
-                            authViewModel.updateLoadingStatus(false)
-                            errorMessage.value = exception.message ?: "Login failed"
-                        }
-                    )
-                },
-                contentColor = Color(0xFFFFFFFF), // Vibrant green button
-                backgroundColor = Color(0xFF33691E), // Vibrant green button
-                modifier = Modifier.fillMaxWidth(), text = "Login"
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-
+        } else {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
             ) {
-                TextButton(
-                    onClick
-                    = { onNavigationRequested(Screen.ForgotPassword.route, false) },
-                    contentPadding = PaddingValues(0.dp) // Remove default padding
-                ) {
-                    Text("Forgot Password?")
-                    // Adjust color based on your theme
-                }
+                Text(
+                    text
+                    = "Login",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.primary // Vibrant green color
+                )
 
-                TextButton(
-                    onClick = { onNavigationRequested(Screen.Signup.route, false) },
-                    contentPadding = PaddingValues(0.dp) // Remove default padding
+                Spacer(modifier = Modifier.height(32.dp))
+
+                CustomTextField(
+                    value = email,
+                    onValueChange = { authViewModel.updateEmail(it) },
+                    label = "Email",
+                    placeholder = "Enter your email",
+                    keyboardType = KeyboardType.Email,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                CustomTextField(
+                    value = password,
+                    onValueChange = { authViewModel.updatePassword(it) },
+                    label = "Password",
+                    placeholder = "Enter your password",
+                    keyboardType = KeyboardType.Password,
+                    isPassword = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                FlatButton(
+                    onClick = {
+                        authViewModel.updateLoadingStatus(true)
+                        authViewModel.loginUser(
+                            email,
+                            password,
+                            userLocation!!,
+                            onSuccess = {
+                                authViewModel.updateLoadingStatus(false)
+                                onNavigationRequested(Screen.ParentHome.route, true)
+                            },
+                            onFailure = { exception ->
+                                authViewModel.updateLoadingStatus(false)
+                                errorMessage.value = exception.message ?: "Login failed"
+                            }
+                        )
+                    },
+                    contentColor = Color(0xFFFFFFFF), // Vibrant green button
+                    backgroundColor = Color(0xFF33691E), // Vibrant green button
+                    modifier = Modifier.fillMaxWidth(), text = "Login"
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+
                 ) {
-                    Text("Create Account")
-                    // Adjust color based on your theme
+                    TextButton(
+                        onClick
+                        = { onNavigationRequested(Screen.ForgotPassword.route, false) },
+                        contentPadding = PaddingValues(0.dp) // Remove default padding
+                    ) {
+                        Text("Forgot Password?")
+                        // Adjust color based on your theme
+                    }
+
+                    TextButton(
+                        onClick = { onNavigationRequested(Screen.Signup.route, false) },
+                        contentPadding = PaddingValues(0.dp) // Remove default padding
+                    ) {
+                        Text("Create Account")
+                        // Adjust color based on your theme
+                    }
                 }
             }
         }
         if (showLoading.value) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(modifier = Modifier.size(64.dp))
-
-            }
+            LoadingDialog()
         }
 
         if (showSnackbar) {

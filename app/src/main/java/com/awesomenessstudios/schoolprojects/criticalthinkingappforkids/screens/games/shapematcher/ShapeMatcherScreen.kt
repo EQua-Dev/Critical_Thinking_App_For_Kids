@@ -123,3 +123,20 @@ object TriangleShape : Shape {
         return Outline.Generic(path)
     }
 }
+object PentagonShape : Shape {
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density
+    ): Outline {
+        val path = Path().apply {
+            moveTo(size.width / 2f, 0f)
+            lineTo(size.width, size.height * 0.38f)
+            lineTo(size.width * 0.81f, size.height)
+            lineTo(size.width * 0.19f, size.height)
+            lineTo(0f, size.height * 0.38f)
+            close()
+        }
+        return Outline.Generic(path)
+    }
+}

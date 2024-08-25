@@ -7,6 +7,8 @@ import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.games.patternpuzzle.PatternPuzzleScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.games.shapematcher.ShapeMatcherScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.games.simplemaze.SimpleMazeScreen
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.games.sortinggame.SortingGameScreen
+import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.screens.games.tictactoe.TicTacToeScreen
 import com.awesomenessstudios.schoolprojects.criticalthinkingappforkids.utils.HelpMe
 
 enum class DifficultyLevel { EASY, MEDIUM, HARD }
@@ -28,9 +30,9 @@ fun GameScreen(childId: String, category: String, difficultyLevel: String, child
 
     Log.d(TAG, "GameScreen: $")
     Log.d(
-            TAG,
-            "GameScreen: ${categoryEnum?.name} ${childStageEnum?.name} ${difficultyLevelEnum?.name}"
-        )
+        TAG,
+        "GameScreen: ${categoryEnum?.name} ${childStageEnum?.name} ${difficultyLevelEnum?.name}"
+    )
     // Check if the enum conversions were successful
     if (categoryEnum != null && difficultyLevelEnum != null && childStageEnum != null) {
 
@@ -39,7 +41,7 @@ fun GameScreen(childId: String, category: String, difficultyLevel: String, child
                 when (difficultyLevelEnum) {
                     DifficultyLevel.EASY -> {
                         when (childStageEnum) {
-                            ChildStage.EARLY_CHILDHOOD -> DragAndDropScreen()
+                            ChildStage.EARLY_CHILDHOOD -> SortingGameScreen()
                             // Add cases for other stages if necessary
                             else -> DefaultScreen()
                         }
@@ -55,7 +57,7 @@ fun GameScreen(childId: String, category: String, difficultyLevel: String, child
 
                     DifficultyLevel.HARD -> {
                         when (childStageEnum) {
-                            ChildStage.EARLY_CHILDHOOD -> SimpleMazeScreen()
+                            ChildStage.EARLY_CHILDHOOD -> TicTacToeScreen(difficulty = "Easy")
                             // Add cases for other stages if necessary
                             else -> DefaultScreen()
                         }
